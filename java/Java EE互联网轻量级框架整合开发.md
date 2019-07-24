@@ -31,7 +31,7 @@ Spring 根据提供的类信息，属性信息通过反射调用类的无参构�
 
 ## 10.2 装配Bean
 > 1. 使用XML装配
-> 2. 使用类和接口装配
+> 2. 使用注解装配
 > 3. 自动装配
 ### 10.2.1 使用XML装配
 > 1. 装配基本类型
@@ -62,6 +62,63 @@ Spring 根据提供的类信息，属性信息通过反射调用类的无参构�
 </bean>
 ```
 2. 装配集合
+```
+<bean id="userRoleAssembly" class="com.ssm.chapter10.pojo.UserRoleAssembly">
+  <property name="id" value="1" />
+  <property name="list">
+    <list>
+      <ref bean="role1" />
+      <ref bean="role2" />
+    </list>
+  </property>
+  <property name="map">
+    <map>
+      <entry key-ref="role1" value-ref="user1" />
+      <entry key-ref="role2" value-ref="user2" />
+    </map>
+  </property>
+  <property name="set">
+    <set>
+      <ref bean="role1" />
+      <ref bean="role2" />
+    </set>
+  </property>
+</bean>
+```
+3. 命名空间装配
+### 10.2.2 使用注解装配
+> 1. @Compontent
+1. @Compontent
+```
+@Component(value = "role")
+public class Role {
+	@Value("1")
+	private Long id;
+	@Value("role_name_1")
+	private String roleName;
+	@Value("role_note_1")
+	private String note;
+}
+```
+```
+@ComponentScan    // 配置扫描路径，默认为该类所在包的路径
+public class PojoConfig {
+
+}
+```
+```
+@ComponentScan(basePackageClasses = { Role.class, RoleServiceImpl.class })  // 可以配置需要扫描的类或者使用包名配置扫描路径
+// @ComponentScan(basePackages = {"com.ssm.chapter10.annotation.pojo",
+// "com.ssm.chapter10.annotation.service"})
+// @ComponentScan(basePackages = {"com.ssm.chapter10.annotation.pojo",
+// "com.ssm.chapter10.annotation.service"},
+// basePackageClasses = {Role.class, RoleServiceImpl.class})
+public class ApplicationConfig {
+	
+}
+```
+2. @Autowired
+
 ####
 ### note
 1. 装配方式的选用：自动装配 > 使用类和接口装配 > 使用XML文件装配（约定优于配置 > 减少XML文件的使用 > XML）
