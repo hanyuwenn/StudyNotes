@@ -88,7 +88,13 @@ Spring 根据提供的类信息，属性信息通过反射调用类的无参构�
 3. 命名空间装配
 ### 10.2.2 使用注解装配
 > 1. @Compontent
-1. @Compontent
+1. @Compontent:使用注解标注bean
+```
+@Component(value = "role")
+public class Role {
+}
+```
+2. @Value: 向对象的属性中注入值
 ```
 @Component(value = "role")
 public class Role {
@@ -100,6 +106,7 @@ public class Role {
 	private String note;
 }
 ```
+3. @ComponentScan：配置扫描路径或者扫描的类，默认为该类所在包的路径
 ```
 @ComponentScan    // 配置扫描路径，默认为该类所在包的路径
 public class PojoConfig {
@@ -117,8 +124,95 @@ public class ApplicationConfig {
 	
 }
 ```
-2. @Autowired
+4. @Autowired:自动装配(当类的属性有多个实现类时会有歧义性)
+```
+// @Autowired 注解到属性或者setter方法上
+@Component("RoleService2")
+public class RoleServiceImpl2 implements RoleService2 {
 
+	@Autowired
+	private Role role = null;
+
+	public Role getRole() {
+		return role;
+	}
+
+//	@Autowired
+	public void setRole(Role role) {
+		this.role = role;
+	}
+}
+```
+```
+// @Autowired 注解到构造器中
+@Component
+public class RoleController2 {
+	
+	private RoleService roleService = null;
+	
+	public RoleController2(@Autowired @Qualifier("roleService3") RoleService roleService) {
+	    this.roleService = roleService;
+	}
+	
+}
+```
+5. @Primary: 当接口有多个实现类时，优先注入该类
+```
+@Component("roleService3")
+@Primary
+public class RoleServiceImpl3 implements RoleService {
+}
+```
+6. @Qualifier: 按名称查找类
+```
+@Component
+public class RoleController {
+	@Autowired
+	@Qualifier("roleService3")
+	private RoleService roleService = null;
+}
+```
+7. @Bean：将方法的返回值作为bean交给spring管理
+```
+@Component
+public class DataSourceBean {
+
+	@Bean(name = "dataSource1")
+	public DataSource getDataSource() {
+		return null;
+	}
+}
+```
+```
+// 通过@Bean指定bean的init和destory方法
+@Bean(name="juiceMaker2", initMethod="init", destroyMethod="myDestroy")
+public JuiceMaker2 initJuiceMaker2() {
+	JuiceMaker2 juiceMaker2 = new JuiceMaker2();
+	juiceMaker2.setBeverageShop("贡茶");
+	Source source = new Source();
+	source.setFruit("橙子");
+	source.setSize("大杯");
+	source.setSugar("少糖");
+     juiceMaker2.setSource(source);
+	return juiceMaker2;
+}
+```
+8. @ImportResource: 导入XML配置文件
+```
+@ComponentScan(basePackageClasses = { Role.class, RoleServiceImpl.class })
+@ImportResource({"classpath:spring-dataSource.xml"})
+public class ApplicationConfig {
+	
+}
+```
+9. @Import: 导入其他配置类
+```
+@ComponentScan(basePackageClasses = { Role.class, RoleServiceImpl.class })
+@Import({Applicationconfig2.class, ApplicationConfig3.class})
+public class ApplicationConfig {
+	
+}
+```
 ####
 ### note
 1. 装配方式的选用：自动装配 > 使用类和接口装配 > 使用XML文件装配（约定优于配置 > 减少XML文件的使用 > XML）
