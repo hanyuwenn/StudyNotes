@@ -31,8 +31,8 @@ Spring 根据提供的类信息，属性信息通过反射调用类的无参构�
 
 ## 10.2 装配Bean
 > 1. 使用XML装配
-> 2. 使用注解装配
-> 3. 自动装配
+> 2. 自动装配
+> 3. 使用注解装配
 ### 10.2.1 使用XML装配
 > 1. 装配基本类型
 > 2. 装配集合
@@ -85,9 +85,8 @@ Spring 根据提供的类信息，属性信息通过反射调用类的无参构�
   </property>
 </bean>
 ```
-3. 命名空间装配
-### 10.2.2 使用注解装配
-> 1. @Compontent
+### 10.2.2 命名空间装配
+### 10.2.3 使用注解装配
 1. @Compontent:使用注解标注bean
 ```
 @Component(value = "role")
@@ -213,6 +212,17 @@ public class ApplicationConfig {
 	
 }
 ```
+## 10.3 Profile
+> 1. 配置Profile
+> 2. 启动Profile
+### 10.3.1 配置Profile
+> 1. 使用注解配置
+> 2. 使用xml配置
+1. 在使用Spring MVC时可以通过配置web上下文参数或者DispatchServlet参数
+2. 作为JNDI条目
+3. 配置JVM启动参数
+4. 再集成测试环境中可以使用@ActiveProfiles
+### 10.3.2 启动rofile
 ####
 ### note
 1. 装配方式的选用：自动装配 > 使用类和接口装配 > 使用XML文件装配（约定优于配置 > 减少XML文件的使用 > XML）
