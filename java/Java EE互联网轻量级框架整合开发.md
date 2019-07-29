@@ -222,7 +222,96 @@ public class ApplicationConfig {
 2. 作为JNDI条目
 3. 配置JVM启动参数
 4. 再集成测试环境中可以使用@ActiveProfiles
-### 10.3.2 启动rofile
+
+## 10.4 加载配置文件
+> 1. 使用注解@PropertySource
+> 2. 使用xml
+1. 使用注解@PropertySource
+```
+@Configuration
+@PropertySource(value={"classpath:database-config.properties"}, ignoreResourceNotFound=true)
+public class ApplicationConfig {
+
+}
+```
+2. 使用xml
+```
+<?xml version='1.0' encoding='UTF-8' ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+    
+	<context:component-scan base-package="com.ssm.chapter10.annotation" />
+	<!-- 
+	<context:property-placeholder
+		ignore-resource-not-found="false" location="classpath:database-config.properties" />
+      -->
+     <!--字符串数组，可配置多个属性文件 --> 
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		
+		<property name="locations">
+			<array>
+				<value>classpath:database-config.properties</value>
+				<value>classpath:log4j.properties</value>
+			</array>
+		</property>
+		<property name="ignoreResourceNotFound" value="false" />
+	</bean>
+</beans>
+```
+## 10.5 条件化装配Bean
+1. Spring 提供了注解@Conditional 去配置，通过它可以配置一个或者多个类，只是这些类都需要实现接口Condition
+```
+	@Bean(name = "dataSource")
+	@Conditional({DataSourceCondition.class})
+	public DataSource getDataSource(
+			@Value("${jdbc.database.driver}") String driver,
+			@Value("${jdbc.database.url}") String url,
+			@Value("${jdbc.database.username}") String username, 
+			@Value("${jdbc.database.password}") String password) {
+		Properties props = new Properties();
+		props.setProperty("driver", driver);
+		props.setProperty("url", url);
+		props.setProperty("username", username);
+		props.setProperty("password", password);
+		DataSource dataSource = null;
+		try {
+			dataSource = BasicDataSourceFactory.createDataSource(props);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return dataSource;
+	}
+```
+```
+public class DataSourceCondition implements Condition {
+	@Override
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		//获取上下文环境
+		Environment env = context.getEnvironment();
+		//判断是否存在关于数据源的基础配置
+		return env.containsProperty("jdbc.database.driver") 
+				&& env.containsProperty("jdbc.database.url")
+				&& env.containsProperty("jdbc.database.username")
+				&& env.containsProperty("jdbc.database.password");
+	}
+}
+```
+## 10.6 Bean的作用域
+1. 单例（singleton）:#默认#的选项，在spring容器中只生成一个bean
+2. 原型（prototype）：当每次注入或者从spring容器中获取bean时创建一个新的实例
+3. 会话（session）:在一个session中只创建一个实例
+4. 请求（request）：在一次请求中Spring会创建一个实例，不同的请求会创建不同的实例
+## 10.7 EL
+#11 面向切面编程
+
+
+
 ####
 ### note
 1. 装配方式的选用：自动装配 > 使用类和接口装配 > 使用XML文件装配（约定优于配置 > 减少XML文件的使用 > XML）
