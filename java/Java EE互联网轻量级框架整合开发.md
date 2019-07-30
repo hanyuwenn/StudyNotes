@@ -308,7 +308,106 @@ public class DataSourceCondition implements Condition {
 3. 会话（session）:在一个session中只创建一个实例
 4. 请求（request）：在一次请求中Spring会创建一个实例，不同的请求会创建不同的实例
 ## 10.7 EL
-#11 面向切面编程
+# 11 面向切面编程
+> 1. Spring AOP的基本概念
+> 2. 
+## 11.1 Sping AOP的基本概念
+1. AOP:在某一段流程的前后插入要执行的代码
+2. 术语：
+- 切面(Aspect)：插入的要执行的代码
+- 通知(Adice):
+	- before
+	- after
+	- afterReturning
+	- afterThrowing
+	- arroundThrowing
+- 引入(Introduction)
+- 切点(Pointcut):被切面拦截的方法
+- 连接点(join point):指定切点
+- 织入(Weaving):生成动态代理的过程
+3. Spring中的AOP的实现方式（只支持方法拦截）
+- 使用ProxyFactoryBean和对应的接口实现
+- 使用xml配置
+- 使用@AspectJ注解驱动切面
+- 使用AspectJ注入切面
+## 11.3 @AspectJ
+1. 选择切点。将RoleServiceImpl类中的printRole作为切入点
+```
+public interface RoleService {
+	public void printRole(Role role);	
+}
+
+```
+```
+@Component
+public class RoleServiceImpl implements RoleService {
+	@Override
+	public void printRole(Role role) {
+		System.out.println("{id: " + role.getId() + ", " 
+	        + "role_name : " + role.getRoleName() + ", "
+	        + "note : " + role.getNote() + "}");
+	}
+}
+```
+2. 创建切面
+```
+@Aspect
+public class RoleAspect {
+
+}
+```
+3. 连接点
+```
+@Aspect
+public class RoleAspect {
+	
+	@Pointcut("execution(* com.ssm.chapter11.aop.service.impl.RoleServiceImpl.printRole(..))")
+	public void print() {
+	}
+
+}
+```
+4. 通知
+```
+@Aspect
+public class RoleAspect {
+    
+    ...
+
+	@Before("print()")
+	public void before() {
+		System.out.println("before ....");
+	}
+
+	@After("print()")
+	public void after() {
+		System.out.println("after ....");
+	}
+
+	@AfterReturning("print()")
+	public void afterReturning() {
+		System.out.println("afterReturning ....");
+	}
+
+	@AfterThrowing("print()")
+	public void afterThrowing() {
+		System.out.println("afterThrowing ....");
+	}
+
+	@Around("print()")
+	public void around(ProceedingJoinPoint jp) {
+		System.out.println("around before ....");
+		try {
+			jp.proceed();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		System.out.println("around after ....");
+	}
+
+}
+```
+
 
 
 
