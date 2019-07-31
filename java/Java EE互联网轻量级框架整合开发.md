@@ -372,7 +372,7 @@ public class RoleAspect {
 @Aspect
 public class RoleAspect {
     
-    ...
+	...
 
 	@Before("print()")
 	public void before() {
@@ -393,6 +393,43 @@ public class RoleAspect {
 	public void afterThrowing() {
 		System.out.println("afterThrowing ....");
 	}
+	
+	...
+	
+}
+```
+5. 使用方法
+```
+// 配置类
+@Configuration
+@EnableAspectJAutoProxy
+@ComponentScan(basePackages = "com.ssm.chapter11.aop")
+public class AopConfig {
+	
+	@Bean
+    public RoleAspect getRoleAspect() {
+        return new RoleAspect();
+    }
+}
+```
+```
+//运行
+	private static void testAnnotation() {
+		ApplicationContext context = new AnnotationConfigApplicationContext(AopConfig.class);
+		Role role = new Role();
+		role.setId(1L);
+		role.setRoleName("role_name_1");
+		role.setNote("note_1");
+		RoleService roleService = context.getBean(RoleService.class);
+		roleService.printRole(role);
+	}
+```
+6. 环绕通知
+```
+@Aspect
+public class RoleAspect {
+    
+	...
 
 	@Around("print()")
 	public void around(ProceedingJoinPoint jp) {
@@ -404,10 +441,27 @@ public class RoleAspect {
 		}
 		System.out.println("around after ....");
 	}
-
+	
+	...
+	
 }
 ```
+7. 给通知传入参数
+```
+@Aspect
+public class RoleAspect {
+    
+	...
 
+	@Before("execution(* com.ssm.chapter11.aop.service.impl.RoleServiceImpl.printRole(..)) " + "&& args(role, sort)")
+	public void before(Role role, int sort) {
+		System.out.println("before ....");
+	}
+	
+	...
+	
+}
+```
 
 
 
